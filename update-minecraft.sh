@@ -33,7 +33,7 @@ mc() {
 upgrade() {
     mc stop
     backup
-    MC_VERSION=1.20 /usr/local/bin/papermc-download-latest.sh
+    MC_VERSION=1.21 /usr/local/bin/papermc-download-latest.sh
     mc start
 }
 
