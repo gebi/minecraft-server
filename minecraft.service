@@ -1,0 +1,73 @@
+[Unit]
+Description=MG Minecraft Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:MaxRAMPercentage=45 \
+    -XX:ActiveProcessorCount=3 \
+    -XX:+UseG1GC \
+    -XX:ParallelGCThreads=2 \
+    -XX:+ExplicitGCInvokesConcurrent \
+    -XX:G1NewSizePercent=20 \
+    -XX:+ParallelRefProcEnabled \
+    -XX:+HeapDumpOnOutOfMemoryError \
+    -XX:HeapDumpPath=/var/lib/minecraft/logs/java_dump \
+    -XX:+ExitOnOutOfMemoryError \
+    -jar /opt/minecraft/server.jar \
+    --nojline \
+    --noconsole
+Restart=always
+RestartSec=5s
+
+UMask=0077
+
+DynamicUser=true
+User=minecraft
+StateDirectory=minecraft
+WorkingDirectory=/var/lib/minecraft
+
+# Do not remove this!
+StandardInput=null
+
+# security
+ReadOnlyPaths=/
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+PrivateUsers=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectProc=invisible
+ProtectHostname=true
+ProtectClock=true
+ProtectKernelLogs=true
+
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+CapabilityBoundingSet=
+
+# disabled for paperMC
+#SystemCallArchitectures=native
+#SystemCallFilter=@system-service
+#SystemCallFilter=~@privileged
+#SystemCallFilter=~@resources
+
+# just for testing, otherwise please die immediately
+#SystemCallErrorNumber=EPERM
+
+LockPersonality=true
+# actually needed by java
+#MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

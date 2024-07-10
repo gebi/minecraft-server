@@ -1,0 +1,9 @@
+[Unit]
+Description=Run minecraft update and backup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update-minecraft.sh upgrade
+
+[Install]
+WantedBy=multi-user.target
