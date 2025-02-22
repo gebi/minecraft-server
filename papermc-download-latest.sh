@@ -7,7 +7,7 @@
 
 # config
 name_="${MC_NAME:-paper}"
-version_="${MC_VERSION:-1.20}"
+version_="${MC_VERSION:-1.21}"
 
 # internal
 version_group_="$version_"
