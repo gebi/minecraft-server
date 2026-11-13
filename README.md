@@ -1,7 +1,7 @@
 # minecraft-server
 scripts and helpers for minecraft server
 
- - `papermc-download-latest.sh` - Implements https://papermc.io APIv2 to download latest release of various tools like paper / velocity / waterfall / ... (only tested on paper, but should work for all tools where builds exist)
+ - `papermc-download-latest.sh` - Implements the PaperMC Fill API v3 (https://fill.papermc.io/v3) to download the latest stable build of various tools like paper / velocity / folia / ... (only tested on paper, but should work for all tools where builds exist)
  - `update-minecraft.sh` - "internal" tool for daily updates and backups of minecraft servers running with plugin auto-updater
  - `minecraft.service` - systemd service unit for minecraft daemon
  - `mc-update.(service|timer)` - timer units to run daily backups and updates
@@ -9,31 +9,38 @@ scripts and helpers for minecraft server
 
 ## papermc-download-latest.sh
 
-- Download latest relase of eg. `paper` from https://papermc.io
+- Download latest stable build of eg. `paper` from https://papermc.io
 - checks sha256sums
-- update `server.jar` symlink to downloaded release (if it exists)
+- checks that the installed java satisfies the minimum java version of the build
+- update `server.jar` symlink to downloaded release (if it is a symlink or does not exist yet)
 
 (safe to call multiple times for the same version and it will not download everything a second time)
 
+The old PaperMC API v2 (https://api.papermc.io/v2) was sunset in 2026 and only returns HTTP 410.
+
 ### Details
 
- 1. Get the lates release of `MC_NAME` from https://papermc.io/api/v2
- 2. Store the json locally in eg. `paper-1.20.6-148.jar.json`
- 3. Write a sha256sum file with content from api eg. `paper-1.20.6-148.jar.sha256sum`
- 4. Download `MC_NAME` release eg. `paper-1.20.6-148.jar`
- 5. Check sha256sum of downloaded release
- 6. If checksum matches update symlink `server.jar` (if it already exists) for usage in systemd unit file
+ 1. Resolve `MC_VERSION`: a version group (eg. `1.21`) selects the newest version in that group which has a build in `MC_CHANNEL`, otherwise it is used as exact version (eg. `1.21.11`). Version groups take precedence, so `1.21` never selects the release `1.21` itself.
+ 2. Get the latest build of that version in `MC_CHANNEL` from https://fill.papermc.io/v3
+ 3. Store the json locally in eg. `paper-1.21.11-132.jar.json`
+ 4. Write a sha256sum file with content from api eg. `paper-1.21.11-132.jar.sha256sum`
+ 5. Download `MC_NAME` release eg. `paper-1.21.11-132.jar`
+ 6. Check sha256sum of downloaded release
+ 7. Check the installed java version against the minimum java version required by that version; abort without activating if it is too old
+ 8. If everything matches update symlink `server.jar` for usage in systemd unit file
 
 ### Usage
 
 This script does not support any arguments but uses environment variables
 
  - `MC_NAME` - Tool to download from https://papermc.io, default=`paper`
- - `MC_VERSION` - Version to download default=`1.20`
+ - `MC_VERSION` - Version group or exact version to download, default=`1.21`
+ - `MC_CHANNEL` - Build channel (`STABLE` / `BETA` / `ALPHA`), default=`STABLE`
+ - `MC_JAVA` - java binary used for the java version check, default=`java`
 
 ### Example
 
-`MC_VERSION=1.20 MC_NAME=paper papermc-download-latest.sh`
+`MC_VERSION=1.21 MC_NAME=paper papermc-download-latest.sh`
 
 on first run:
 
