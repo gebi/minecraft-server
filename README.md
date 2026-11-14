@@ -5,6 +5,33 @@ scripts and helpers for minecraft server
  - `update-minecraft.sh` - "internal" tool for daily updates and backups of minecraft servers running with plugin auto-updater
  - `minecraft.service` - systemd service unit for minecraft daemon
  - `mc-update.(service|timer)` - timer units to run daily backups and updates
+ - `host/` - host configuration of the server, paths relative to `/` (see below)
+
+
+## host/
+
+Host configuration, installed to the same path below `/`:
+
+ - `etc/nftables.conf` - firewall, minecraft (java + bedrock) is only reachable via tailscale.
+   Only manages its own table `inet mc1_filter`, never `flush ruleset`, because tailscaled keeps
+   its rules (`ts-*` chains) in the same ruleset. Replies to connections initiated by the host are
+   accepted, Geyser NetherNet needs them for STUN on the bedrock ports. The bedrock ports are also
+   blocked on tcp, Geyser runs its built-in signaling (http) there.
+ - `etc/systemd/system/nftables.service.d/only-own-table.conf` - on stop only delete the own table
+   instead of the default `nft flush ruleset` (which would also remove the tailscale rules)
+ - `etc/cloud/cloud.cfg.d/99-disable-network-config.cfg` - disable cloud-init network config.
+   On Ubuntu 26.04 the cloud-init Hetzner datasource can fail at boot and then writes a dhcp4/dhcp6
+   fallback config, which drops the static IPv6 address. The network is configured statically in
+   `/etc/netplan/60-hetzner-static.yaml` on the host instead (not in this repo, it contains the
+   host addresses), generated from `curl http://169.254.169.254/hetzner/v1/metadata/network-config`.
+
+Install / reload:
+
+```
+install -m 0644 host/etc/nftables.conf /etc/nftables.conf
+install -D -m 0644 host/etc/systemd/system/nftables.service.d/only-own-table.conf /etc/systemd/system/nftables.service.d/only-own-table.conf
+systemctl daemon-reload && systemctl enable nftables && systemctl reload-or-restart nftables
+```
 
 
 ## papermc-download-latest.sh
