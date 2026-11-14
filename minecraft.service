@@ -5,6 +5,8 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
+# java exits with 143 (128+SIGTERM) on a normal stop, not a failure
+SuccessExitStatus=143
 ExecStart=/usr/bin/java \
     -XX:+UnlockExperimentalVMOptions \
     -XX:MaxRAMPercentage=45 \
