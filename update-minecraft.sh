@@ -2,6 +2,9 @@
 
 ts_=$(date +%Y%m%d-%H%M%S)
 
+# paper version group (or exact version) to follow, see papermc-download-latest.sh
+mc_version_="${MC_VERSION:-26.3}"
+
 zrepo_="/mnt/backup/zbackup"
 zbackups_="$zrepo_/backups"
 
@@ -94,7 +97,7 @@ mc() {
 upgrade() {
     mc stop
     backup
-    MC_VERSION=1.21 /usr/local/bin/papermc-download-latest.sh
+    MC_VERSION="$mc_version_" /usr/local/bin/papermc-download-latest.sh
     mc start
     # prune after the servers are running again, gc can take a while
     prune
