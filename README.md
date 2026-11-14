@@ -4,6 +4,7 @@ scripts and helpers for minecraft server
  - `papermc-download-latest.sh` - Implements the PaperMC Fill API v3 (https://fill.papermc.io/v3) to download the latest stable build of various tools like paper / velocity / folia / ... (only tested on paper, but should work for all tools where builds exist)
  - `update-minecraft.sh` - "internal" tool for daily updates and backups of minecraft servers running with plugin auto-updater
  - `minecraft.service` - systemd service unit for minecraft daemon
+ - `minecraft2.service` - second minecraft instance (own state directory `/var/lib/minecraft2`, same `server.jar`)
  - `mc-update.(service|timer)` - timer units to run daily backups and updates
  - `host/` - host configuration of the server, paths relative to `/` (see below)
 
